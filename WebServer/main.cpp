@@ -6,7 +6,6 @@
 int main()
 {
     std::cout<<"Hello WebServer";
-
     return 0;
 }
 
