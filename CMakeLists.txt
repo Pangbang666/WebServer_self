@@ -3,4 +3,4 @@ project(WebServer)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(WebServer_self WebServer/main.cpp)
+add_executable(WebServer_self WebServer/main.cpp WebServer/Server.cpp WebServer/Server.h WebServer/EventLoop.cpp WebServer/EventLoop.h WebServer/Epoll.cpp WebServer/Epoll.h WebServer/base/noncopyable.h WebServer/base/MutexLock.cpp WebServer/base/MutexLock.h WebServer/Channel.cpp WebServer/Channel.h WebServer/HttpData.cpp WebServer/HttpData.h WebServer/Timer.cpp WebServer/Timer.h)

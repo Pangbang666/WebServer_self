@@ -1,0 +1,40 @@
+//
+// Created by zhoujc on 2020/5/4.
+//
+#pragma once
+#include "Channel.h"
+#include "HttpData.h"
+#include <sys/epoll.h>
+#include <vector>
+#include <memory>
+#include "Channel.h"
+#include "Timer.h"
+#include <vector>
+
+using namespace std;
+
+class Epoll {
+public:
+    typedef std::shared_ptr<Channel> SP_Channel;
+    Epoll();
+    ~Epoll();
+    void epoll_add(SP_Channel request, int timeout);
+    void epoll_mod(SP_Channel reruest, int timeout);
+    void epoll_del(SP_Channel request);
+
+    std::vector<SP_Channel> poll();
+    std::vector<SP_Channel> getEventsRequest(int events_num);
+    void add_timer(SP_Channel resuest_data, int timeout);
+    int getEpollFd() { return epollFd_;}
+    void handlerExpired();
+
+private:
+    static const int MAXFDS=10000;
+    int epollFd_;
+    std::vector<epoll_event> events_;
+    std::shared_ptr<Channel> fd2Chan_[MAXFDS];
+    std::shared_ptr<HttpData> fd2Http_[MAXFDS];
+    TimerManager timerManager_;
+};
+
+
