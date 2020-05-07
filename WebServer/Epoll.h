@@ -26,14 +26,14 @@ public:
     std::vector<SP_Channel> getEventsRequest(int events_num);
     void add_timer(SP_Channel resuest_data, int timeout);
     int getEpollFd() { return epollFd_;}
-    void handlerExpired();
+    void handleExpired();
 
 private:
     static const int MAXFDS=10000;
     int epollFd_;
     std::vector<epoll_event> events_;
-    std::shared_ptr<Channel> fd2Chan_[MAXFDS];
-    std::shared_ptr<HttpData> fd2Http_[MAXFDS];
+    std::shared_ptr<Channel> fd2chan_[MAXFDS];
+    std::shared_ptr<HttpData> fd2http_[MAXFDS];
     TimerManager timerManager_;
 };
 

@@ -10,12 +10,14 @@
 #include <assert.h>
 #include "Channel.h"
 #include <vector>
+#include "Util.h"
 
 using namespace std;
 
 class EventLoop {
 public:
     typedef std::function<void()> Functor;
+    typedef std::shared_ptr<Channel> SP_Channel;
     EventLoop();
     ~EventLoop();
 
@@ -25,7 +27,7 @@ public:
     void queueInLoop(Functor&& cb);
     bool isInLoopThread() { return true;}   //这里要完善
     void assertInLoopThread() { assert(isInLoopThread()); }
-    //void shutdown(shared_ptr<Channel> channel) { shutDownWR(channel->getFd());}
+    void shutdown(shared_ptr<Channel> channel) { shutDownWR(channel->getFd());}
 
     void removeFromPoller(shared_ptr<Channel> channel){
         poller_->epoll_del(channel);
@@ -50,7 +52,7 @@ private:
     std::vector<Functor> pendingFunctors_;
     bool callingPendingFunctors_;
     const pid_t threadId_;
-    shared_ptr<Channel> pWakeupChannel_;
+    shared_ptr<Channel> pwakeupChannel_;
 
     void wakeup();
     void handleRead();
