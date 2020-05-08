@@ -8,7 +8,6 @@
 #include "base/MutexLock.h"
 #include "base/Condition.h"
 
-
 class EventLoopThread :noncopyable{
 public:
     EventLoopThread();

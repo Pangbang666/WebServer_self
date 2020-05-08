@@ -11,6 +11,7 @@
 #include "Channel.h"
 #include <vector>
 #include "Util.h"
+#include "base/CurrentThread.h"
 
 using namespace std;
 
@@ -25,7 +26,7 @@ public:
     void quit();
     void runInLoop(Functor&& cb);
     void queueInLoop(Functor&& cb);
-    bool isInLoopThread() { return true;}   //这里要完善
+    bool isInLoopThread() { return threadId_==CurrentThread::tid();}
     void assertInLoopThread() { assert(isInLoopThread()); }
     void shutdown(shared_ptr<Channel> channel) { shutDownWR(channel->getFd());}
 
@@ -38,7 +39,7 @@ public:
     }
 
     void addToPoller(shared_ptr<Channel> channel, int timeout=0){
-        poller_->add_timer(channel,timeout);
+        poller_->epoll_add(channel,timeout);
     }
 
 

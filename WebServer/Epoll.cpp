@@ -104,5 +104,5 @@ void Epoll::add_timer(SP_Channel request_data, int timeout) {
     if (t)
         timerManager_.addTimer(t, timeout);
     else
-        //LOG << "timer add fail";
+        LOG << "timer add fail";
 }
