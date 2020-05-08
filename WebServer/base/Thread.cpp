@@ -5,6 +5,7 @@
 #include "CurrentThread.h"
 #include <sys/types.h>
 #include <sys/syscall.h>
+#include <sys/prctl.h>
 #include <unistd.h>
 #include <assert.h>
 
@@ -60,7 +61,7 @@ void* startThread(void* obj){
     return nullptr;
 }
 
-Thread::Thread(const Thread::ThreadFunc &func, std::string &name)
+Thread::Thread(const ThreadFunc &func, std::string &name)
     : started_(false),
       joined_(false),
       pthreadId_(0),
