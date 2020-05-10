@@ -61,7 +61,7 @@ void* startThread(void* obj){
     return nullptr;
 }
 
-Thread::Thread(const ThreadFunc &func, std::string &name)
+Thread::Thread(const ThreadFunc &func, const std::string &name)
     : started_(false),
       joined_(false),
       pthreadId_(0),
@@ -73,7 +73,7 @@ Thread::Thread(const ThreadFunc &func, std::string &name)
 }
 
 Thread::~Thread() {
-    if(started_ && ! joined_) pthread_detach(pthreadId_);
+    if(started_ && (!joined_)) pthread_detach(pthreadId_);
 }
 
 void Thread::setDefaultName() {

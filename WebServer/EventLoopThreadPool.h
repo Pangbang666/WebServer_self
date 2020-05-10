@@ -10,7 +10,9 @@
 class EventLoopThreadPool :noncopyable{
 public:
     EventLoopThreadPool(EventLoop* baseLoop,int numThreads);
-    ~EventLoopThreadPool() { LOG<<"~EventLoopTHreadPool";}
+    ~EventLoopThreadPool() {
+        //LOG<<"~EventLoopTHreadPool";
+    }
     void start();
 
     EventLoop* getNextLoop();

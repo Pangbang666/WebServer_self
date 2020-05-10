@@ -11,7 +11,7 @@
 class Thread :noncopyable {
 public:
     typedef std::function<void()> ThreadFunc;
-    explicit Thread(const ThreadFunc& func, std::string& name);
+    explicit Thread(const ThreadFunc& func, const std::string& name);
     ~Thread();
     void start();
     int join();

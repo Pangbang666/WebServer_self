@@ -3,26 +3,27 @@
 //
 #pragma once
 #include <memory>
-#include "EventLoop.h"
 #include <string>
 #include <unistd.h>
 #include "Timer.h"
 #include "Channel.h"
 
+class EventLoop;
+
 using namespace std;
 
 class HttpData: std::enable_shared_from_this<HttpData> {
 public:
-    HttpData(EventLoop *loop, int connfd);
+    HttpData(EventLoop *loop, int connfd){};
     ~HttpData() { close(fd_);};
-    void reset();
+    void reset() {};
     void sepereteTimer();
     void linkTimer(std::shared_ptr<TimerNode> mtimer) {timer_=mtimer;}
 
     std::shared_ptr<Channel> getChannel() { return channel_;}
     EventLoop* getLoop() { return loop_;}
-    void handleClose();
-    void nowEvent();
+    void handleClose() {};
+    void newEvent() {};
 
 private:
     EventLoop* loop_;

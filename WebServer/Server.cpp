@@ -39,10 +39,10 @@ void Server::handleNewConn() {
     bzero(&client_addr, sizeof(struct sockaddr_in));
     socklen_t client_addr_len=sizeof(client_addr);
     int accept_fd=0;
-    while((accept_fd=accept(listenFd_,(struct sockaddr*)(&client_addr),&client_addr_len)>0){
+    while((accept_fd=accept(listenFd_,(struct sockaddr*)(&client_addr),&client_addr_len))>0){
         EventLoop* loop=eventLoopThreadPool_->getNextLoop();
-        LOG << "New connection from " << inet_ntoa(client_addr.sin_addr) << ":"
-            << ntohs(client_addr.sin_port);
+        //LOG << "New connection from " << inet_ntoa(client_addr.sin_addr) << ":"
+        //    << ntohs(client_addr.sin_port);
 
         //限制服务器的最大并发连接数
         if(accept_fd>=MAXFDS){
@@ -52,15 +52,15 @@ void Server::handleNewConn() {
 
         //设为非阻塞模式
         if(setSocketNonBlocking(accept_fd)<0){
-            LOG::<<"Set no blocked failed!";
+            //LOG::<<"Set no blocked failed!";
             return;
         }
 
-        setSocketNodeLay(accept_fd);
+        setSocketNodelay(accept_fd);
 
         std::shared_ptr<HttpData> req_info(new HttpData(loop,accept_fd));
         req_info->getChannel()->setHolder(req_info);
         loop->queueInLoop(std::bind(&HttpData::newEvent,req_info));
     }
-    acceptChannel_->setEvents(EPOLLIN||EPOLLET);
+    acceptChannel_->setEvents(EPOLLIN | EPOLLET);
 }

@@ -2,10 +2,11 @@
 // Created by zhoujc on 2020/5/4.
 //
 #pragma once
-#include "HttpData.h"
 #include <memory>
 #include <queue>
 #include <deque>
+
+class HttpData;
 
 using  namespace std;
 

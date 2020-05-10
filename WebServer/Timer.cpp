@@ -1,9 +1,9 @@
 //
 // Created by zhoujc on 2020/5/4.
 //
-#pragma once
 #include "Timer.h"
 #include <sys/time.h>
+#include "HttpData.h"
 
 
 TimerNode::TimerNode(std::shared_ptr<HttpData> requestData, int timeout)
@@ -24,7 +24,7 @@ TimerNode::~TimerNode()
     }
 }
 
-TimerNode::TimerNode(TimerNode &tn)
+TimerNode::TimerNode(TimerNode& tn)
     :SPHttpData_(tn.SPHttpData_),expiredTime_(0) {};
 
 void TimerNode::update(int timeout)
@@ -42,7 +42,7 @@ bool TimerNode::isValid()
     gettimeofday(&now, nullptr);
 
     //计算超时的时刻（以毫秒计）
-    size_t temp = expiredTime_=(((now.tv_sec%10000)*1000)+(now.tv_usec/1000))+timeout;
+    size_t temp = expiredTime_=(((now.tv_sec%10000)*1000)+(now.tv_usec/1000));
     if(temp<expiredTime_)
         return true;
     else
@@ -60,7 +60,7 @@ void TimerNode::clearReq()
 
 void TimerManager::addTimer(std::shared_ptr<HttpData> SPHttpData, int timeout)
 {
-    SPTimerNode new_node(new TimerNode(HttpData,timeout));
+    SPTimerNode new_node(new TimerNode(SPHttpData,timeout));
     timerNodeQueue.push(new_node);
     SPHttpData->linkTimer(new_node);
 }

@@ -7,11 +7,7 @@
 #include <sys/epoll.h>
 #include <vector>
 #include <memory>
-#include "Channel.h"
 #include "Timer.h"
-#include <vector>
-
-using namespace std;
 
 class Epoll {
 public:
@@ -19,12 +15,12 @@ public:
     Epoll();
     ~Epoll();
     void epoll_add(SP_Channel request, int timeout);
-    void epoll_mod(SP_Channel reruest, int timeout);
+    void epoll_mod(SP_Channel request, int timeout);
     void epoll_del(SP_Channel request);
 
     std::vector<SP_Channel> poll();
     std::vector<SP_Channel> getEventsRequest(int events_num);
-    void add_timer(SP_Channel resuest_data, int timeout);
+    void add_timer(SP_Channel request_data, int timeout);
     int getEpollFd() { return epollFd_;}
     void handleExpired();
 

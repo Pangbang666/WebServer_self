@@ -6,8 +6,13 @@
 
 int main()
 {
-    Server* myServer=new Server();
-    std::cout<<"Hello WebServer";
+    int threadNum=4;
+    int port=7777;
+    EventLoop mainLoop;
+    Server myHTTPServer(&mainLoop, threadNum, port);
+    myHTTPServer.start();
+    mainLoop.loop();
+
     return 0;
 }
 

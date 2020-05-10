@@ -3,6 +3,7 @@
 //
 
 #include "Epoll.h"
+#include <assert.h>
 
 const int EVENTSNUM = 4096;
 const int EPOLLWAIT_TIME = 10000;
@@ -103,6 +104,7 @@ void Epoll::add_timer(SP_Channel request_data, int timeout) {
     shared_ptr<HttpData> t = request_data->getHolder();
     if (t)
         timerManager_.addTimer(t, timeout);
-    else
-        LOG << "timer add fail";
+    else{
+        // LOG << "timer add fail";
+    }
 }
