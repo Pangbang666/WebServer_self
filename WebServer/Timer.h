@@ -18,7 +18,7 @@ public:
     void update(int timeout);
     bool isValid();
     void clearReq();
-    void setDeleted() { deleted_==true; }
+    void setDeleted() { deleted_=true; }
     bool isDeleted() { return deleted_; }
     size_t getExpTime() { return expiredTime_;}
 private:
