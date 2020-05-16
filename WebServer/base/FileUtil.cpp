@@ -4,7 +4,6 @@
 
 #include "FileUtil.h"
 
-
 using namespace std;
 
 AppendFile::AppendFile(string filename) : fp_(fopen(filename.c_str(), "ae")) {

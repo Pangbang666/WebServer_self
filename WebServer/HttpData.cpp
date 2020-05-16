@@ -1,11 +1,13 @@
 //
 // Created by zhoujc on 2020/5/4.
 //
-
-#include <bits/stat.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
 #include "HttpData.h"
 #include "Util.h"
 #include "EventLoop.h"
+#include "base/Logging.h"
 
 using namespace std;
 
@@ -177,7 +179,7 @@ void HttpData::handleRead() {
                 break;
             else if(flag==PARSE_HEADER_ERROR){
                 perror("2");
-                LOG<<"FD = "<<fd_<<","<<inBuffer_<<********;
+                LOG<<"FD = "<<fd_<<","<<inBuffer_<<"********";
                 inBuffer_.clear();
                 error_=true;
                 handleError(fd_,400,"Bad request");
@@ -495,7 +497,7 @@ AnalysisState HttpData::analysisState() {
         }
 
         header += "Content-Type: " + filetype + "\r\n";
-        header += "Content-Length: " + to_string(sbuf.size()) + "\r\n";
+        header += "Content-Length: " + to_string(sbuf.st_size) + "\r\n";
         header += "Server: ZhouJC's Web Server\r\n";
         //头部结束
         header +="\r\n";
@@ -510,7 +512,7 @@ AnalysisState HttpData::analysisState() {
             return ANALYSIS_ERROR;
         }
 
-        void* mmapRet=mmap(NULLM,sbuf.st_size, PROT_READ, MAP_PRIVATE,src_fd, 0);
+        void* mmapRet=mmap(NULL,sbuf.st_size, PROT_READ, MAP_PRIVATE,src_fd, 0);
         close(src_fd);
         if(mmapRet == (void*)-1){
             munmap(mmapRet,sbuf.st_size);
@@ -522,7 +524,7 @@ AnalysisState HttpData::analysisState() {
         char* src_addr=static_cast<char*>(mmapRet);
         outBuffer_+=string(src_addr, src_addr +sbuf.st_size);
 
-        mumap(mmapRet,sbuf.st_size);
+        munmap(mmapRet,sbuf.st_size);
         return ANALYSIS_SUCCESS;
     }
 

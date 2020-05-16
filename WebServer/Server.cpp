@@ -4,9 +4,11 @@
 #include "Server.h"
 #include "stdio.h"
 #include <sys/socket.h>
+#include <arpa/inet.h>
 #include <netinet/in.h>
 #include <strings.h>
 #include "Util.h"
+#include "base/Logging.h"
 
 Server::Server(EventLoop *loop, int threadNum, int port)
     : loop_(loop),
@@ -41,8 +43,8 @@ void Server::handleNewConn() {
     int accept_fd=0;
     while((accept_fd=accept(listenFd_,(struct sockaddr*)(&client_addr),&client_addr_len))>0){
         EventLoop* loop=eventLoopThreadPool_->getNextLoop();
-        //LOG << "New connection from " << inet_ntoa(client_addr.sin_addr) << ":"
-        //    << ntohs(client_addr.sin_port);
+        LOG << "New connection from " << inet_ntoa(client_addr.sin_addr) << ":"
+            << ntohs(client_addr.sin_port);
 
         //限制服务器的最大并发连接数
         if(accept_fd>=MAXFDS){
@@ -52,7 +54,7 @@ void Server::handleNewConn() {
 
         //设为非阻塞模式
         if(setSocketNonBlocking(accept_fd)<0){
-            //LOG::<<"Set no blocked failed!";
+            LOG<<"Set no blocked failed!";
             return;
         }
 

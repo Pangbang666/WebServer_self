@@ -20,7 +20,7 @@ public:
     ~FixedBuffer() {}
 
     void append(const char* buf, size_t len){
-        if(avail() > static_cast<int> len){
+        if(avail() > static_cast<int>(len)){
             memcpy(cur_, buf, len);
             cur_+=len;
         }
@@ -31,7 +31,7 @@ public:
 
     char* current() { return cur_;}
     int avail() const { return static_cast<int>(end()-cur_);}
-    void add(size_t len) { cur_ += len};
+    void add(size_t len) { cur_ += len;};
 
     void reset() { cur_ = data_;}
     void bzero() { memset(data_, 0, sizeof(data_));}
@@ -65,6 +65,7 @@ public:
 
     LogStream& operator<<(float v){
         *this << static_cast<double>(v);
+        return *this;
     }
 
     LogStream& operator<<(double);

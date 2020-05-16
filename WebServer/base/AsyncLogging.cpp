@@ -28,12 +28,12 @@ void AsyncLogging::append(const char *logline, int len) {
         currentBuffer_->append(logline, len);
     else{
         buffers_.push_back(currentBuffer_);
-        currentBuffer_.reset();
+        currentBuffer_.reset();  //释放掉内存
         if(nextBuffer_)
             currentBuffer_=std::move(nextBuffer_);
         else
             currentBuffer_.reset(new Buffer());
-        currentBuffer_->append((logline.len));
+        currentBuffer_->append(logline, len);
         cond_.notify();
     }
 }
