@@ -7,7 +7,7 @@
 
 
 TimerNode::TimerNode(std::shared_ptr<HttpData> requestData, int timeout)
-:deleted_(false),SPHttpData_(requestData)
+    : deleted_(false), SPHttpData_(requestData)
 {
     struct timeval now;
     gettimeofday(&now, nullptr);
@@ -25,7 +25,7 @@ TimerNode::~TimerNode()
 }
 
 TimerNode::TimerNode(TimerNode& tn)
-    :SPHttpData_(tn.SPHttpData_),expiredTime_(0) {};
+    : SPHttpData_(tn.SPHttpData_), expiredTime_(0) {};
 
 void TimerNode::update(int timeout)
 {
@@ -38,12 +38,14 @@ void TimerNode::update(int timeout)
 
 bool TimerNode::isValid()
 {
+    //timeval使用和理解
+    //https://blog.csdn.net/engineer_james/article/details/84345380?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.nonecase&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.nonecase
     struct timeval now;
     gettimeofday(&now, nullptr);
 
     //计算超时的时刻（以毫秒计）
-    size_t temp = expiredTime_=(((now.tv_sec%10000)*1000)+(now.tv_usec/1000));
-    if(temp<expiredTime_)
+    size_t temp =(((now.tv_sec%10000)*1000)+(now.tv_usec/1000));
+    if(temp < expiredTime_)
         return true;
     else
     {
@@ -54,7 +56,7 @@ bool TimerNode::isValid()
 
 void TimerNode::clearReq()
 {
-    SPHttpData_->reset();
+    SPHttpData_.reset();
     setDeleted();
 }
 

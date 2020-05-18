@@ -73,13 +73,15 @@ private:
     static pthread_once_t once_control;
 };
 
-class HttpData: std::enable_shared_from_this<HttpData> {
+//enable_shared_from_this使用总结
+//https://blog.csdn.net/xjc200808/article/details/46506679?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522158979715819725211959627%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fall.%2522%257D&request_id=158979715819725211959627&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_ecpm_v3~pc_rank_v3-2-46506679.first_rank_ecpm_v3_pc_rank_v3&utm_term=shared_from_this是干嘛用的
+class HttpData : std::enable_shared_from_this<HttpData> {
 public:
     HttpData(EventLoop *loop, int connfd);
     ~HttpData() { close(fd_);}
     void reset() ;
-    void sepereteTimer();
-    void linkTimer(std::shared_ptr<TimerNode> mtimer) {timer_=mtimer;}
+    void seperateTimer();
+    void linkTimer(std::shared_ptr<TimerNode> timer) {timer_= timer;}
 
     std::shared_ptr<Channel> getChannel() { return channel_;}
     EventLoop* getLoop() { return loop_;}

@@ -15,7 +15,7 @@ pthread_once_t MineType::once_control=PTHREAD_ONCE_INIT;
 unordered_map<string,string> MineType::mine;
 
 const __uint32_t DEFAULT_EVENT = EPOLLIN | EPOLLET | EPOLLONESHOT;
-const int DEFAULT_EXPIRED_TIME = 2000;  //ms
+const int DEFAULT_EXPIRED_TIME = 200000;  //ms
 const int DEFAULT_KEEP_ALIVE_TIME = 5 *60 *1000; //ms
 
 char favicon[555] = {
@@ -141,7 +141,7 @@ void HttpData::reset(){
     }
 }
 
-void HttpData::sepereteTimer() {
+void HttpData::seperateTimer() {
     if(timer_.lock()){
         shared_ptr<TimerNode> timer(timer_.lock());
         timer->clearReq();
@@ -177,7 +177,7 @@ void HttpData::handleRead() {
             URIState flag=this->parseURI();
             if(flag==PARSE_URI_AGAIN)
                 break;
-            else if(flag==PARSE_HEADER_ERROR){
+            else if(flag == PARSE_URI_ERROR){
                 perror("2");
                 LOG<<"FD = "<<fd_<<","<<inBuffer_<<"********";
                 inBuffer_.clear();
@@ -249,7 +249,7 @@ void HttpData::handleWrite() {
 }
 
 void HttpData::handleConn() {
-    sepereteTimer();
+    seperateTimer();
     __uint32_t &events_=channel_->getEvents();
     if(!error_&& connectionState_==H_CONNECTED){
         if(events_!=0){
@@ -261,10 +261,10 @@ void HttpData::handleConn() {
                 events_ |= EPOLLOUT;
             }
 
-            events_ |=EPOLLET;
+            events_ |= EPOLLET;
             loop_->updatePoller(channel_,timeout);
         }else if(keepAlive_){
-            events_ |=(EPOLLIN | EPOLLET);
+            events_ |= (EPOLLIN | EPOLLET);
             int timeout=DEFAULT_KEEP_ALIVE_TIME;
             loop_->updatePoller(channel_,timeout);
         }else {
@@ -275,7 +275,8 @@ void HttpData::handleConn() {
     }else if(!error_ && connectionState_ ==H_DISCONNECTING && (events_ & EPOLLOUT)){
         events_ =(EPOLLOUT | EPOLLET);
     }else{
-        loop_->runInLoop(bind(&HttpData::handleClose,shared_from_this()));
+        //loop_->runInLoop(bind(&HttpData::handleClose,shared_from_this()));
+        loop_->runInLoop(bind(&HttpData::handleClose, this));
     }
 }
 
@@ -409,7 +410,8 @@ HeaderState HttpData::parseHeaders() {
                     hState_=H_LF;
                     string key=str.substr(key_start,key_end-key_start);
                     string value=str.substr(value_start,value_end-value_start);
-                    headers_[key]=value;
+                    headers_.insert(make_pair(key,value));
+                    //headers_[key]=value;
                     now_read_line_begin=i;
                 }else
                     return PARSE_HEADER_ERROR;
@@ -417,7 +419,7 @@ HeaderState HttpData::parseHeaders() {
                 break;
             }
             case H_LF:{
-                if(str[i] == '\n'){
+                if(str[i] == '\r'){
                     hState_=H_END_CR;
                 }else{
                     key_start=i;
@@ -456,11 +458,11 @@ AnalysisState HttpData::analysisState() {
     }else if(method_ == METHOD_GET || method_ == METHOD_HEAD){
         string header;
         header+="HTTP/1.1 200 OK\r\n";
-        if(headers_.find("connection")!=headers_.end()&&
-            (headers_["connection"] == "Keep-Alive" ||
-             headers_["connection"] == "keep-alive")){
+        if(headers_.find("Connection")!=headers_.end()&&
+            (headers_["Connection"] == "Keep-Alive" ||
+             headers_["Connection"] == "keep-alive")){
             keepAlive_=true;
-            header+=string("connection: Keep_Alive\r\n") +"Keep-Alive: timeout=" +
+            header+=string("Connection: Keep_Alive\r\n") +"Keep-Alive: timeout=" +
                     to_string(DEFAULT_KEEP_ALIVE_TIME) +"\r\n";
         }
 
@@ -469,7 +471,7 @@ AnalysisState HttpData::analysisState() {
         if(dot_pos<0)
             filetype=MineType::getMine("default");
         else
-            filetype=MineType::getMine(fileName_.substr(dot_pos+1));
+            filetype=MineType::getMine(fileName_.substr(dot_pos));
 
         //echo test
         if(fileName_ == "hello"){
@@ -489,6 +491,8 @@ AnalysisState HttpData::analysisState() {
             return ANALYSIS_SUCCESS;
         }
 
+        //stat函数用法
+        //https://blog.csdn.net/allenguo123/article/details/41011801?ops_request_misc=&request_id=&biz_id=102&utm_term=stat%E5%87%BD%E6%95%B0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduweb~default-2-41011801
         struct stat sbuf;
         if(stat(fileName_.c_str(), &sbuf) <0 ){
             header.clear();
@@ -550,7 +554,7 @@ void HttpData::handleError(int fd, int err_num, std::string short_msg) {
 
 void HttpData::handleClose() {
     connectionState_ =H_DISCONNECTED;
-    shared_ptr<HttpData> guard(shared_from_this());
+    //shared_ptr<HttpData> guard = shared_from_this();
     loop_->removeFromPoller(channel_);
 }
 

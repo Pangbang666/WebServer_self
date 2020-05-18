@@ -11,7 +11,9 @@ AppendFile::AppendFile(string filename) : fp_(fopen(filename.c_str(), "ae")) {
     setbuffer(fp_, buffer_, sizeof buffer_);
 }
 
-AppendFile::~AppendFile() { fclose(fp_); }
+AppendFile::~AppendFile() {
+    this->flush();
+    fclose(fp_); }
 
 void AppendFile::append(const char* logline, const size_t len) {
     size_t n = this->write(logline, len);

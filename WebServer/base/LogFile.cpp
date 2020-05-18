@@ -23,7 +23,7 @@ void LogFile::append(const char *logline, int len) {
 }
 
 void LogFile::flush() {
-    MutexLockGuard lock(*mutex_);
+    //MutexLockGuard lock(*mutex_);
     file_->flush();
 }
 

@@ -8,11 +8,10 @@
 #include "MutexLock.h"
 #include "noncopyable.h"
 
-
 class LogFile {
 public:
     //append函数被调用flushEveryN_次，flush函数调用一次；会🕸往文件写，只不过，文件也是带有缓冲的
-    LogFile(const std::string& basename, int flushEveryN = 1024);
+    LogFile(const std::string& basename, int flushEveryN = 20);
     ~LogFile();
 
     void append(const char* logline, int len);

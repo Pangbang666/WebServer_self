@@ -7,6 +7,7 @@
 #include <sys/epoll.h>
 #include <sys/eventfd.h>
 #include "Util.h"
+#include "base/Logging.h"
 #include <iostream>
 
 using namespace std;
@@ -59,7 +60,7 @@ void EventLoop::wakeup() {
     uint64_t one = 1;
     ssize_t n = writen(wakeupFd_, (char*)(&one), sizeof one);
     if (n != sizeof one) {
-       // LOG << "EventLoop::wakeup() writes " << n << " bytes instead of 8";
+        LOG << "EventLoop::wakeup() writes " << n << " bytes instead of 8";
     }
 }
 
@@ -67,7 +68,7 @@ void EventLoop::handleRead() {
     uint64_t one = 1;
     ssize_t n = readn(wakeupFd_, &one, sizeof one);
     if (n != sizeof one) {
-       // LOG << "EventLoop::handleRead() reads " << n << " bytes instead of 8";
+        LOG << "EventLoop::handleRead() reads " << n << " bytes instead of 8";
     }
     // pwakeupChannel_->setEvents(EPOLLIN | EPOLLET | EPOLLONESHOT);
     pwakeupChannel_->setEvents(EPOLLIN | EPOLLET);

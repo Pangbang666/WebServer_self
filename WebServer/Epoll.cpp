@@ -4,6 +4,7 @@
 
 #include "Epoll.h"
 #include <assert.h>
+#include "base/Logging.h"
 
 const int EVENTSNUM = 4096;
 const int EPOLLWAIT_TIME = 10000;
@@ -105,6 +106,6 @@ void Epoll::add_timer(SP_Channel request_data, int timeout) {
     if (t)
         timerManager_.addTimer(t, timeout);
     else{
-        // LOG << "timer add fail";
+         LOG << "timer add fail";
     }
 }
