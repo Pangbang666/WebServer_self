@@ -57,15 +57,15 @@ enum HttpMethod { METHOD_POST = 1, METHOD_GET, METHOD_HEAD };
 
 enum HttpVersion { HTTP_10 = 1, HTTP_11 };
 
-class MineType{
+class MimeType{
 private:
     static void init();
-    static std::unordered_map<std::string,std::string> mine;
-    MineType();
-    MineType(const MineType& m);
+    static std::unordered_map<std::string,std::string> mime;
+    MimeType();
+    MimeType(const MimeType& m);
 
 public:
-    static std::string getMine(const std::string &suffix);
+    static std::string getMime(const std::string &suffix);
 
 private:
     //pthread_once详解

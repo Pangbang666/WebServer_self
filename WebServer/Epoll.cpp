@@ -95,7 +95,7 @@ std::vector<SP_Channel> Epoll::getEventsRequest(int events_num) {
             // cur_req->seperateTimer();
             req_data.push_back(cur_req);
         } else {
-            //LOG << "SP cur_req is invalid";
+            LOG << "SP cur_req is invalid";
         }
     }
     return req_data;

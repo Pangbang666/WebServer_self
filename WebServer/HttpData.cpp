@@ -11,8 +11,8 @@
 
 using namespace std;
 
-pthread_once_t MineType::once_control=PTHREAD_ONCE_INIT;
-unordered_map<string,string> MineType::mine;
+pthread_once_t MimeType::once_control=PTHREAD_ONCE_INIT;
+unordered_map<string,string> MimeType::mime;
 
 const __uint32_t DEFAULT_EVENT = EPOLLIN | EPOLLET | EPOLLONESHOT;
 const int DEFAULT_EXPIRED_TIME = 200000;  //ms
@@ -83,29 +83,32 @@ char favicon[555] = {
         'N',    'D',    '\xAE', 'B',    '\x60', '\x82',
 };
 
-void MineType::init() {
-    mine[".html"] = "text/html";
-    mine[".avi"] = "video/x-msvideo";
-    mine[".bmp"] = "image/bmp";
-    mine[".c"] = "text/plain";
-    mine[".doc"] = "application/msword";
-    mine[".gif"] = "image/gif";
-    mine[".gz"] = "application/x-gzip";
-    mine[".htm"] = "text/html";
-    mine[".ico"] = "image/x-icon";
-    mine[".jpg"] = "image/jpeg";
-    mine[".png"] = "image/png";
-    mine[".txt"] = "text/plain";
-    mine[".mp3"] = "audio/mp3";
-    mine["default"] = "text/html";
+void MimeType::init() {
+    mime[".html"] = "text/html;charset=utf-8";
+    mime[".avi"] = "video/x-msvideo";
+    mime[".bmp"] = "image/bmp";
+    mime[".c"] = "text/plain";
+    mime[".doc"] = "application/msword";
+    mime[".gif"] = "image/gif";
+    mime[".gz"] = "application/x-gzip";
+    mime[".htm"] = "text/html";
+    mime[".ico"] = "image/x-icon";
+    mime[".jpg"] = "image/jpeg";
+    mime[".png"] = "image/png";
+    mime[".txt"] = "text/plain";
+    mime[".mp3"] = "audio/mp3";
+    mime[".js"] = "application/x-javascript";
+    mime[".svg"] = "text/xml";
+    mime[".css"] = "text/css";
+    mime["default"] = "text/html";
 }
 
-std::string MineType::getMine(const std::string &suffix) {
-    pthread_once(&MineType::once_control,MineType::init);
-    if(MineType::mine.find(suffix)!=MineType::mine.end()){
-        return MineType::mine[suffix];
+std::string MimeType::getMime(const std::string &suffix) {
+    pthread_once(&MimeType::once_control,MimeType::init);
+    if(MimeType::mime.find(suffix)!=MimeType::mime.end()){
+        return MimeType::mime[suffix];
     } else
-        return MineType::mine["default"];
+        return MimeType::mime["default"];
 }
 
 HttpData::HttpData(EventLoop *loop, int connfd)
@@ -466,12 +469,14 @@ AnalysisState HttpData::analysisState() {
                     to_string(DEFAULT_KEEP_ALIVE_TIME) +"\r\n";
         }
 
-        int dot_pos=fileName_.find('.');
+        if(fileName_.back()== '/')
+            fileName_ += "index.html";
+        int dot_pos=fileName_.find_last_of('.');
         string filetype;
         if(dot_pos<0)
-            filetype=MineType::getMine("default");
+            filetype=MimeType::getMime("default");
         else
-            filetype=MineType::getMine(fileName_.substr(dot_pos));
+            filetype=MimeType::getMime(fileName_.substr(dot_pos));
 
         //echo test
         if(fileName_ == "hello"){
@@ -516,6 +521,8 @@ AnalysisState HttpData::analysisState() {
             return ANALYSIS_ERROR;
         }
 
+        //内存映射函数讲解：
+        //https://blog.csdn.net/yangle4695/article/details/52139585?ops_request_misc=&request_id=&biz_id=102&utm_term=mmap%E5%87%BD%E6%95%B0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduweb~default-0-52139585
         void* mmapRet=mmap(NULL,sbuf.st_size, PROT_READ, MAP_PRIVATE,src_fd, 0);
         close(src_fd);
         if(mmapRet == (void*)-1){
@@ -539,10 +546,16 @@ void HttpData::handleError(int fd, int err_num, std::string short_msg) {
     short_msg=" " +short_msg;
     char send_buff[4096];
     string body_buff, header_buff;
-    body_buff += "<html><title>哎呀～出错了</title>";
-    body_buff += "<body bgcolor=\"fffff\">";
+    body_buff += "<html><title>哎~出错了</title>";
+    body_buff += "<body bgcolor=\"ffffff\">";
     body_buff += to_string(err_num) + short_msg;
-    body_buff += "<hr><em> ZhouJC's Web Server\r\n";
+    body_buff += "<hr><em> ZhouJC's Web Server</em>\n</body></html>";
+
+    header_buff += "HTTP/1.1 " + to_string(err_num) + short_msg + "\r\n";
+    header_buff += "Content-Type: text/html;charset=utf-8\r\n";
+    header_buff += "Connection: Close\r\n";
+    header_buff += "Content-Length: " + to_string(body_buff.size()) + "\r\n";
+    header_buff += "Server: LinYa's Web Server\r\n";
 
     header_buff += "\r\n";
     //错误处理不考虑writrn不完整的情况
