@@ -114,6 +114,8 @@ void EventLoop::doPendingFunctors() {
     std::vector<Functor> functors;
     callingPendingFunctors_ = true;
 
+    //这一步加锁与queueInLoop结合起来看
+    //调用swap函数是为了防止执行过程中有新的函数加入
     {
         MutexLockGuard lock(mutex_);
         functors.swap(pendingFunctors_);

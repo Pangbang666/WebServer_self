@@ -461,6 +461,9 @@ AnalysisState HttpData::analysisState() {
     }else if(method_ == METHOD_GET || method_ == METHOD_HEAD){
         string header;
         header+="HTTP/1.1 200 OK\r\n";
+        
+        //HTTP首部keep-alive用法详解
+        //https://blog.csdn.net/qq826654664jx/article/details/100864080?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522159037882219724846440956%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fall.%2522%257D&request_id=159037882219724846440956&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_ecpm_v2~pc_rank_v3-1-100864080.first_rank_ecpm_v2_pc_rank_v3&utm_term=http%E9%A6%96%E9%83%A8Keep-Alive
         if(headers_.find("Connection")!=headers_.end()&&
             (headers_["Connection"] == "Keep-Alive" ||
              headers_["Connection"] == "keep-alive")){
