@@ -18,11 +18,22 @@ EventLoopThread::~EventLoopThread() {
 }
 
 void EventLoopThread::threadFunc() {
-
+    EventLoop loop;
+    {
+        MutexLockGuard mutexGuard_(mutex_);
+        loop_ = &loop;
+        loop.loop();
+        cond_.notifyAll();
+    }
 }
 
 EventLoop* EventLoopThread::start() {
     thread_.start();
+
+    MutexLockGuard mutexGuard_(mutex_);
+    while(!loop_){
+        cond_.wait();
+    }
 
     return loop_;
 }
