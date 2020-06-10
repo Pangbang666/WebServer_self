@@ -41,11 +41,17 @@ public:
             TimeNode frontNode = q.top();
             if(frontNode.expiredTime_ < time_now){
                 expiredChannels_.push_back(frontNode.channel_);
+                q.pop();
             }else
                 break;
         }
 
         return expiredChannels_;
+    }
+
+    void addTimer(std::shared_ptr<Channel> channel_, size_t timeout){
+        TimeNode newTimer(channel_, timeout);
+        q.push(newTimer);
     }
 
 private:
