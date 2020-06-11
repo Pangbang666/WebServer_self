@@ -1,10 +1,11 @@
 //
 // Created by zhoujc on 2020/6/4.
 //
+#pragma once
 #include "noncopyable.h"
 #include <pthread.h>
 
-class MutexLock :noncopyable{
+class MutexLock{
 public:
     MutexLock() { pthread_mutex_init(&mutex, nullptr);}
     ~MutexLock(){
@@ -20,7 +21,7 @@ private:
     pthread_mutex_t mutex;
 };
 
-class MutexLockGuard : noncopyable{
+class MutexLockGuard{
 public:
     explicit MutexLockGuard(MutexLock& mutex) : mutex_(mutex) { mutex_.lock();}
     ~MutexLockGuard() { mutex_.unlock();}

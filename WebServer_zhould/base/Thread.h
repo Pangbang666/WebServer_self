@@ -10,7 +10,7 @@
 
 typedef std::function<void()> ThreadFunc;
 
-class Thread : noncopyable{
+class Thread{
 public:
     explicit Thread(const ThreadFunc& func, const std::string& name = std::string());
     ~Thread();

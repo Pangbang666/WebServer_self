@@ -12,16 +12,16 @@
 #include <memory>
 #include <unistd.h>
 
-class EventLoop : noncopyable{
+class EventLoop{
 public:
     EventLoop();
     ~EventLoop();
 
     void loop();
 
-    void addEvent(std::shared_ptr<Channel> channel_, size_t timeout = 0);
-    void modEvent(std::shared_ptr<Channel> channel_, size_t timeout = 0);
-    void delEvent(std::shared_ptr<Channel> channel_, size_t timeout = 0);
+    void addChannel(std::shared_ptr<Channel> channel_, size_t timeout = 0);
+    void modChannel(std::shared_ptr<Channel> channel_, size_t timeout = 0);
+    void delChannel(std::shared_ptr<Channel> channel_, size_t timeout = 0);
 
     bool isInThread() { return getpid() == pid_; }
     bool isStartLoop() { return isStartLoop_;}

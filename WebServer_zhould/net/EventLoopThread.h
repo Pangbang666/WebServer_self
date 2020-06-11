@@ -10,7 +10,7 @@
 
 class EventLoopThread {
 public:
-    EventLoopThread(std::string name = "EventLoopThread");
+    explicit EventLoopThread(std::string name = "EventLoopThread");
     ~EventLoopThread();
 
     EventLoop* start();

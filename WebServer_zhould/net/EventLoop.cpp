@@ -17,7 +17,7 @@ EventLoop::~EventLoop() {
 
 }
 
-void EventLoop::addEvent(std::shared_ptr<Channel> channel_, size_t timeout) {
+void EventLoop::addChannel(std::shared_ptr<Channel> channel_, size_t timeout) {
     poller_.addEvent(channel_);
 
     if(timeout > 0){
@@ -25,7 +25,7 @@ void EventLoop::addEvent(std::shared_ptr<Channel> channel_, size_t timeout) {
     }
 }
 
-void EventLoop::modEvent(std::shared_ptr<Channel> channel_, size_t timeout) {
+void EventLoop::modChannel(std::shared_ptr<Channel> channel_, size_t timeout) {
     poller_.modEvent(channel_);
 
     if(timeout > 0){
@@ -33,7 +33,7 @@ void EventLoop::modEvent(std::shared_ptr<Channel> channel_, size_t timeout) {
     }
 }
 
-void EventLoop::delEvent(std::shared_ptr<Channel> channel_, size_t timeout) {
+void EventLoop::delChannel(std::shared_ptr<Channel> channel_, size_t timeout) {
     poller_.delEvent(channel_);
 
     if(timeout > 0){

@@ -4,8 +4,14 @@
 
 #include "EventLoopThreadPool.h"
 
-EventLoopThreadPool::EventLoopThreadPool(size_t threadNum) : threadNum_(threadNum){
-    threadPool_ = std::vector<EventLoopThread>(threadNum, EventLoopThread());
+EventLoopThreadPool::EventLoopThreadPool(size_t threadNum)
+    : threadNum_(threadNum),
+      nextLoopIndex_(0){
+    for(size_t i = 0; i < threadNum; i++){
+        std::string threadName = "thread_" + std::to_string(i);
+        std::shared_ptr<EventLoopThread> thread(new EventLoopThread(threadName));
+        threadPool_.push_back((thread));
+    }
 }
 
 EventLoopThreadPool::~EventLoopThreadPool() {
@@ -14,7 +20,13 @@ EventLoopThreadPool::~EventLoopThreadPool() {
 
 void EventLoopThreadPool::start() {
     for(size_t i = 0; i < threadNum_; i++){
-        EventLoop* loop = threadPool_[i].start();
+        EventLoop* loop = threadPool_[i]->start();
         loops_.push_back(loop);
     }
+}
+
+EventLoop* EventLoopThreadPool::getNextLoop() {
+    EventLoop* loop = loops_[nextLoopIndex_];
+    nextLoopIndex_ = (nextLoopIndex_ + 1)%threadNum_;
+    return loop;
 }

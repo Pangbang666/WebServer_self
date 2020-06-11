@@ -8,7 +8,7 @@
 #include <memory>
 #include "MutexLock.h"
 
-class Condition : noncopyable{
+class Condition{
 public:
     Condition(MutexLock& mutex);
     ~Condition();
