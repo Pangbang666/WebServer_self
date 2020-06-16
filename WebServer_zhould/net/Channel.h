@@ -11,12 +11,13 @@ typedef std::function<void()> CallbackFunc;
 
 class Channel : noncopyable{
 public:
-    Channel(int fd);
+    Channel(int fd = 0);
     ~Channel();
 
     void handleEvent();
 
     int getFd();
+    void setFd(int fd);
     void setEvents(__uint32_t events);
     void setReEvents(__uint32_t reEvents);
     __uint32_t getEvents();

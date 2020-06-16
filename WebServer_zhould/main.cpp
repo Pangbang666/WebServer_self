@@ -9,7 +9,7 @@
 int main(){
 
     EventLoop loop;
-    Server myServer(&loop, 2, 777);
+    Server myServer(&loop, 1, 7777);
     myServer.start();
     loop.loop();
 

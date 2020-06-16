@@ -6,7 +6,7 @@
 
 int main()
 {
-    int threadNum=4;
+    int threadNum=1;
     int port=7777;
     EventLoop mainLoop;
     Server myHTTPServer(&mainLoop, threadNum, port);

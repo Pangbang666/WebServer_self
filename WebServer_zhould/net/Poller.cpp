@@ -5,13 +5,15 @@
 #include <assert.h>
 #include <unistd.h>
 #include "Poller.h"
+#include <vector>
 
 #define MAXEVENTNUM 1000
-#define TIMEOUT 6666
+#define TIMEOUT 1000
 
-Poller::Poller() {
-    epollFd_ =  epoll_create1(EPOLL_CLOEXEC);
-    assert(epollFd_);
+Poller::Poller()
+    : epollFd_(epoll_create1(EPOLL_CLOEXEC)),
+      events_(MAXEVENTNUM){
+    assert(epollFd_ > 0);
 }
 
 Poller::~Poller() {
@@ -19,16 +21,18 @@ Poller::~Poller() {
 }
 
 std::vector<std::shared_ptr<Channel>> Poller::poll() {
-    epoll_event events[MAXEVENTNUM];
     while(true) {
-        size_t eventNum = epoll_wait(epollFd_, events, MAXEVENTNUM, TIMEOUT);
+        int eventNum = epoll_wait(epollFd_, &*events_.begin(), events_.size(), TIMEOUT);
         if(eventNum > 0){
             std::vector<std::shared_ptr<Channel>> eventChannels_;
             for(size_t i = 0; i< eventNum; i++){
-                int eventFd_ = events[i].data.fd;
-                eventChannels_.push_back(fd2Channel_[eventFd_]);
+                int eventFd_ = events_[i].data.fd;
+                if(fd2Channel_.find(eventFd_) != fd2Channel_.end()) {
+                    std::shared_ptr<Channel> connChannel = fd2Channel_[eventFd_];
+                    connChannel->setReEvents(events_[i].events);
+                    eventChannels_.push_back(connChannel);
+                }
             }
-
             return eventChannels_;
         }
     }
@@ -40,7 +44,7 @@ void Poller::addEvent(std::shared_ptr<Channel> newChannel_) {
 
     fd2Channel_[fd_] = newChannel_;
 
-    epoll_event event;
+    struct epoll_event event;
     event.events = events_;
     event.data.fd = fd_;
     epoll_ctl(epollFd_, EPOLL_CTL_ADD, fd_, &event);

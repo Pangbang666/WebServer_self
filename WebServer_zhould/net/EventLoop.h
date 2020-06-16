@@ -11,6 +11,7 @@
 #include "Channel.h"
 #include <memory>
 #include <unistd.h>
+#include "../base/CurrentThread.h"
 
 class EventLoop{
 public:
@@ -23,13 +24,18 @@ public:
     void modChannel(std::shared_ptr<Channel> channel_, size_t timeout = 0);
     void delChannel(std::shared_ptr<Channel> channel_, size_t timeout = 0);
 
-    bool isInThread() { return getpid() == pid_; }
+    void setPid(pid_t pid) { pid_ = pid;}
+    pid_t getPid() { return pid_;}
+
+    bool isInThread() { return pid_ == CurrentThread::tid(); }
     bool isStartLoop() { return isStartLoop_;}
 
 private:
     pid_t pid_;
+    int wakeupFd_;
     Poller poller_;
     bool isStartLoop_;
     TimerManager timerManager_;
+    std::shared_ptr<Channel> wakeupChannel_;
 };
 

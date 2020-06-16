@@ -4,9 +4,10 @@
 #pragma once
 #include "../base/noncopyable.h"
 #include "../base/Thread.h"
-#include "EventLoop.h"
 #include <memory>
 #include <string>
+
+class EventLoop;
 
 class EventLoopThread {
 public:

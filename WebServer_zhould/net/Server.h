@@ -20,11 +20,11 @@ private:
     void acceptFunc();
 
 private:
+    int port_;
+    int listenFd_;
+    size_t threadNum_;
     EventLoop* loop_;
     std::shared_ptr<EventLoopThreadPool> threadPool_;
     std::shared_ptr<Channel> acceptChannel_;
-    int listenFd_;
-    size_t threadNum_;
-    int port_;
 };
 

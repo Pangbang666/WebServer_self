@@ -22,6 +22,7 @@ public:
     void modEvent(std::shared_ptr<Channel> modChannel_);
 private:
     int epollFd_;
+    std::vector<epoll_event> events_;
     std::map<int,std::shared_ptr<Channel>> fd2Channel_;
 };
 

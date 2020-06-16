@@ -17,6 +17,11 @@ public:
 
     void start();
     int join();
+    
+    bool isStarted() { return isStarted_;}
+
+    void setPid(pid_t pid) { pid_ = pid;}
+    pid_t getPid() { return pid_;}
 
 private:
     //区分pthread_t和pid_t
@@ -26,7 +31,7 @@ private:
 
     std::string name_;
     ThreadFunc func_;
-    bool isStarted;
+    bool isStarted_;
     bool isJoined;
     MutexLock mutex_;
     Condition cond_;

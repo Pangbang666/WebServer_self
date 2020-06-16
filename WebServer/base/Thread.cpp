@@ -88,7 +88,7 @@ void Thread::start() {
     assert(!started_);
     started_=true;
     ThreadData* data=new ThreadData(func_,name_,&tid_,&latch_);
-    if(pthread_create(&pthreadId_, nullptr,&startThread,data)){
+    if(pthread_create(&pthreadId_, nullptr, &startThread,data)){
         started_=false;
         delete data;
     }else{

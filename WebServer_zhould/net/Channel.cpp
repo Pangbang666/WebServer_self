@@ -11,7 +11,6 @@ Channel::Channel(int fd)
       reEvents_(0),
       httpData_(fd),
       readCallback_(std::bind(&HttpData::readFd, &httpData_)){
-
 }
 
 Channel::~Channel() {
@@ -29,6 +28,10 @@ void Channel::handleEvent() {
 
 int Channel::getFd() {
     return fd_;
+}
+
+void Channel::setFd(int fd) {
+    fd_ = fd;
 }
 
 void Channel::setEvents(__uint32_t events) {
