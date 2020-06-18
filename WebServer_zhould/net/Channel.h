@@ -4,17 +4,22 @@
 #pragma once
 
 #include "../base/noncopyable.h"
+#include <memory>
 #include <functional>
 #include "HttpData.h"
 
 typedef std::function<void()> CallbackFunc;
 
-class Channel : noncopyable{
+class Channel{
 public:
-    Channel(int fd = 0);
+    Channel(EventLoop* loop, int fd);
+    Channel(EventLoop* loop);
     ~Channel();
 
     void handleEvent();
+
+    std::shared_ptr<HttpData> getHolder();
+    void setHolder(std::shared_ptr<HttpData> holder);
 
     int getFd();
     void setFd(int fd);
@@ -26,10 +31,11 @@ public:
     void setReadCallback(const CallbackFunc& readCallback) { readCallback_ = readCallback;}
 private:
     int fd_;
+    EventLoop* loop_;
     __uint32_t events_;
     __uint32_t reEvents_;
 
-    HttpData httpData_;
+    std::weak_ptr<HttpData> holder_;
 
     CallbackFunc readCallback_;
     CallbackFunc writeCallback_;

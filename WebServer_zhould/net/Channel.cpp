@@ -5,12 +5,18 @@
 #include <sys/epoll.h>
 #include "Channel.h"
 
-Channel::Channel(int fd)
+Channel::Channel(EventLoop* loop, int fd)
     : fd_(fd),
+      loop_(loop),
       events_(0),
-      reEvents_(0),
-      httpData_(fd),
-      readCallback_(std::bind(&HttpData::readFd, &httpData_)){
+      reEvents_(0){
+}
+
+Channel::Channel(EventLoop *loop)
+    : loop_(loop),
+      events_(0),
+      reEvents_(0){
+
 }
 
 Channel::~Channel() {
@@ -24,6 +30,16 @@ void Channel::handleEvent() {
         writeCallback_();
     }
 
+    setReEvents(0);
+}
+
+std::shared_ptr<HttpData> Channel::getHolder() {
+    std::shared_ptr<HttpData> ret(holder_.lock());
+    return ret;
+}
+
+void Channel::setHolder(std::shared_ptr<HttpData> holder) {
+    holder_ = holder;
 }
 
 int Channel::getFd() {

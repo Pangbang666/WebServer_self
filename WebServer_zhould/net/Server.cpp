@@ -10,6 +10,7 @@
 #include <signal.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <netinet/tcp.h>
 
 #define MAXLISTENNUN 1024
 #define DEFAULT_TIMEOUT 2048
@@ -76,13 +77,18 @@ static int setSocketNonBlocking(int fd){
     return 0;
 }
 
+static void setSocketNoDelay(int fd){
+    int enable = 1;
+    setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (void*)&enable, sizeof(enable));
+}
+
 Server::Server(EventLoop* loop, size_t threadNum, int port)
     : loop_(loop),
       threadNum_(threadNum),
       threadPool_(new EventLoopThreadPool(threadNum_)),
       port_(port),
       listenFd_(creatListenFd(port)),
-      acceptChannel_(new Channel()){
+      acceptChannel_(new Channel(loop_, listenFd_)){
     acceptChannel_->setFd(listenFd_);
     hand_for_sigpipe();
     assert( setSocketNonBlocking(listenFd_) >= 0);
@@ -104,13 +110,24 @@ void Server::start() {
 void Server::acceptFunc() {
     sockaddr_in clientAddr;
     socklen_t len = sizeof(clientAddr);
-    int connFd_;
+    int acceptFd_;
     bzero(&clientAddr, sizeof((clientAddr)));
+    while((acceptFd_ = accept(listenFd_, (sockaddr*)(&clientAddr), &len)) > 0){
 
-    connFd_ = accept(listenFd_, (sockaddr*)(&clientAddr), &len);
-    assert(connFd_ != -1);
+        //限制服务器的最大并发连接数
+        if(acceptFd_ >= MAXLISTENNUN){
+            close(acceptFd_);
+            continue;
+        }
 
-    EventLoop* loop = threadPool_->getNextLoop();
-    std::shared_ptr<Channel> newChannel(new Channel(connFd_));
-    loop->addChannel(newChannel, DEFAULT_TIMEOUT);
+        //设置为非阻塞模式
+        if( setSocketNonBlocking(acceptFd_) < 0)
+            return;
+
+        setSocketNoDelay(acceptFd_);
+
+        std::shared_ptr<HttpData> httpData_(new HttpData(loop_, acceptFd_));
+        loop_->queueInLoop(std::bind(&HttpData::newEvent, httpData_));
+    }
+    acceptChannel_->setEvents(EPOLLIN | EPOLLET);
 }
