@@ -126,8 +126,10 @@ void Server::acceptFunc() {
 
         setSocketNoDelay(acceptFd_);
 
-        std::shared_ptr<HttpData> httpData_(new HttpData(loop_, acceptFd_));
-        loop_->queueInLoop(std::bind(&HttpData::newEvent, httpData_));
+        EventLoop* selectLoop_ = threadPool_->getNextLoop();
+
+        std::shared_ptr<HttpData> httpData_(new HttpData(selectLoop_, acceptFd_));
+        selectLoop_->queueInLoop(std::bind(&HttpData::newEvent, httpData_));
     }
     acceptChannel_->setEvents(EPOLLIN | EPOLLET);
 }

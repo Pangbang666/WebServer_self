@@ -25,7 +25,7 @@ public:
     void setFd(int fd);
     void setEvents(__uint32_t events);
     void setReEvents(__uint32_t reEvents);
-    __uint32_t getEvents();
+    __uint32_t& getEvents();
 
     void setWriteCallback(const CallbackFunc& writeCallback) { writeCallback_ = writeCallback;}
     void setReadCallback(const CallbackFunc& readCallback) { readCallback_ = readCallback;}

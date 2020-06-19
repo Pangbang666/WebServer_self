@@ -29,7 +29,7 @@ EventLoop::EventLoop()
     wakeupChannel_->setFd(wakeupFd_);
     wakeupChannel_->setEvents(EPOLLIN | EPOLLET);
 
-
+    wakeupChannel_->setReadCallback(std::bind(&EventLoop::handleRead, this));
     addChannel(wakeupChannel_, 0);
 }
 
@@ -74,7 +74,7 @@ void EventLoop::loop() {
         }
         eventhandling_ = false;
 
-
+        doPendingFunctors();
 
         //超时处理
         std::vector<std::shared_ptr<Channel>> expiredChannels = timerManager_.tick();

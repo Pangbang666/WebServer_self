@@ -5,6 +5,8 @@
 #include <errno.h>
 #include "Util.h"
 
+const int MAX_BUF = 4096;
+
 ssize_t readn(int fd, void* buff, size_t n){
     ssize_t nleft = n;
     ssize_t nread = 0;
@@ -27,6 +29,30 @@ ssize_t readn(int fd, void* buff, size_t n){
             readSum += nread;
             nread = 0;
         }
+    }
+
+    return readSum;
+}
+
+ssize_t readn(int fd, std::string& inBuffer, bool& zero){
+    ssize_t nread = 0;
+    ssize_t readSum = 0;
+    while(true){
+        char buf[MAX_BUF];
+        if((nread = read(fd, buf, MAX_BUF)) < 0){
+            if(errno == EINTR)
+                continue;
+            else if(errno == EAGAIN)
+                return readSum;
+            else
+                return -1;
+        }else if(nread == 0) {
+            zero = true;
+            break;
+        }
+
+        readSum += nread;
+        inBuffer += std::string(buf, buf + nread);
     }
 
     return readSum;
