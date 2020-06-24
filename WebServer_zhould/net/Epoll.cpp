@@ -4,23 +4,23 @@
 
 #include <assert.h>
 #include <unistd.h>
-#include "Poller.h"
+#include "Epoll.h"
 #include <vector>
 
 #define MAXEVENTNUM 1000
 #define TIMEOUT 1000
 
-Poller::Poller()
+Epoll::Epoll()
     : epollFd_(epoll_create1(EPOLL_CLOEXEC)),
       events_(MAXEVENTNUM){
     assert(epollFd_ > 0);
 }
 
-Poller::~Poller() {
+Epoll::~Epoll() {
     close(epollFd_);
 }
 
-std::vector<std::shared_ptr<Channel>> Poller::poll() {
+std::vector<std::shared_ptr<Channel>> Epoll::poll() {
     while(true) {
         int eventNum = epoll_wait(epollFd_, &*events_.begin(), events_.size(), TIMEOUT);
         if(eventNum > 0){
@@ -38,9 +38,17 @@ std::vector<std::shared_ptr<Channel>> Poller::poll() {
     }
 }
 
-void Poller::addEvent(std::shared_ptr<Channel> newChannel_) {
+void Epoll::epoll_add(std::shared_ptr<Channel> newChannel_, int timeout) {
     int fd_ = newChannel_->getFd();
     __uint32_t events_ = newChannel_->getEvents();
+
+    if(timeout > 0){
+        std::shared_ptr<HttpData> holder_ = newChannel_->getHolder();
+        if(holder_) {
+            timerManager_.addTimer(newChannel_, timeout);
+            fd2HttpData_[fd_] = holder_;
+        }
+    }
 
     fd2Channel_[fd_] = newChannel_;
 
@@ -48,9 +56,10 @@ void Poller::addEvent(std::shared_ptr<Channel> newChannel_) {
     event.events = events_;
     event.data.fd = fd_;
     epoll_ctl(epollFd_, EPOLL_CTL_ADD, fd_, &event);
+
 }
 
-void Poller::delEvent(std::shared_ptr<Channel> delChannel_) {
+void Epoll::epoll_del(std::shared_ptr<Channel> delChannel_) {
     int fd_ = delChannel_->getFd();
     __uint32_t events_ = delChannel_->getEvents();
 
@@ -63,11 +72,16 @@ void Poller::delEvent(std::shared_ptr<Channel> delChannel_) {
     epoll_ctl(epollFd_, EPOLL_CTL_DEL, fd_, &event);
 
     fd2Channel_.erase(fd_);
+    fd2HttpData_.erase(fd_);
 }
 
-void Poller::modEvent(std::shared_ptr<Channel> modChannel_) {
+void Epoll::epoll_mod(std::shared_ptr<Channel> modChannel_, int timeout) {
     int fd_ = modChannel_->getFd();
     __uint32_t events_ = modChannel_->getEvents();
+
+    if(timeout > 0){
+        timerManager_.addTimer(modChannel_, timeout);
+    }
 
     assert(fd2Channel_.find(fd_) != fd2Channel_.end());
 

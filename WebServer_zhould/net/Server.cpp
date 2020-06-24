@@ -104,7 +104,7 @@ void Server::start() {
 
     acceptChannel_->setEvents(EPOLLIN | EPOLLET);
     acceptChannel_->setReadCallback(std::bind(&Server::acceptFunc, this));
-    loop_->addChannel(acceptChannel_);
+    loop_->addToPoller(acceptChannel_);
 }
 
 void Server::acceptFunc() {
@@ -129,7 +129,10 @@ void Server::acceptFunc() {
         EventLoop* selectLoop_ = threadPool_->getNextLoop();
 
         std::shared_ptr<HttpData> httpData_(new HttpData(selectLoop_, acceptFd_));
+        httpData_->getChannel()->setHolder(httpData_);
         selectLoop_->queueInLoop(std::bind(&HttpData::newEvent, httpData_));
+
+        break;
     }
     acceptChannel_->setEvents(EPOLLIN | EPOLLET);
 }

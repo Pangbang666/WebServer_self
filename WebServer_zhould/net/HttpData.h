@@ -72,6 +72,8 @@ public:
     HttpData(EventLoop* loop, int fd);
     ~HttpData();
 
+    void reset();
+
     void newEvent();
 
 public:
@@ -82,6 +84,8 @@ public:
     URIState parseURI();
     HeaderState parseHeaders();
     AnalysisState analysisRequest();
+
+    std::shared_ptr<Channel> getChannel();
 private:
     int fd_;
     EventLoop* loop_;

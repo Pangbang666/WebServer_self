@@ -4,8 +4,7 @@
 #pragma once
 
 #include "../base/noncopyable.h"
-#include "Poller.h"
-#include "../base/Timer.h"
+#include "Epoll.h"
 #include "../base/MutexLock.h"
 #include "../base/Condition.h"
 #include "Channel.h"
@@ -27,9 +26,9 @@ public:
     void queueInLoop(Functor&& cb);
     void doPendingFunctors();
 
-    void addChannel(std::shared_ptr<Channel> channel_, size_t timeout = 0);
-    void modChannel(std::shared_ptr<Channel> channel_, size_t timeout = 0);
-    void delChannel(std::shared_ptr<Channel> channel_, size_t timeout = 0);
+    void addToPoller(std::shared_ptr<Channel> channel_, int timeout = 0);
+    void updatePoller(std::shared_ptr<Channel> channel_, int timeout = 0);
+    void delFromPoller(std::shared_ptr<Channel> channel_);
 
     bool isInThread() { return pid_ == CurrentThread::tid(); }
     bool isStartLoop() { return started_;}
@@ -42,16 +41,13 @@ private:
 private:
     pid_t pid_;
     int wakeupFd_;
-    Poller poller_;
+    Epoll poller_;
     bool started_;
     bool eventhandling_;
-    TimerManager timerManager_;
     std::shared_ptr<Channel> wakeupChannel_;
 
     MutexLock mutex_;
     bool callingPendingFunctors_;
     std::vector<Functor> pendingFunctors_;
-
-
 };
 

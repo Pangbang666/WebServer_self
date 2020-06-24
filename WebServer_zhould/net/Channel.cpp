@@ -58,6 +58,6 @@ void Channel::setReEvents(__uint32_t reEvents) {
     reEvents_ = reEvents;
 }
 
-__uint32_t Channel::getEvents() {
+__uint32_t& Channel::getEvents() {
     return events_;
 }

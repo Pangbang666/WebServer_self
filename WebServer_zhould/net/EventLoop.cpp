@@ -21,7 +21,6 @@ EventLoop::EventLoop()
       wakeupFd_(creatEventFd()),
       poller_(),
       started_(false),
-      timerManager_(),
       eventhandling_(false),
       wakeupChannel_(new Channel(this, wakeupFd_)),
       mutex_(),
@@ -30,35 +29,23 @@ EventLoop::EventLoop()
     wakeupChannel_->setEvents(EPOLLIN | EPOLLET);
 
     wakeupChannel_->setReadCallback(std::bind(&EventLoop::handleRead, this));
-    addChannel(wakeupChannel_, 0);
+    addToPoller(wakeupChannel_, 0);
 }
 
 EventLoop::~EventLoop() {
 
 }
 
-void EventLoop::addChannel(std::shared_ptr<Channel> channel_, size_t timeout) {
-    poller_.addEvent(channel_);
-
-    if(timeout > 0){
-        timerManager_.addTimer(channel_, timeout);
-    }
+void EventLoop::addToPoller(std::shared_ptr<Channel> channel_, int timeout) {
+    poller_.epoll_add(channel_, timeout);
 }
 
-void EventLoop::modChannel(std::shared_ptr<Channel> channel_, size_t timeout) {
-    poller_.modEvent(channel_);
-
-    if(timeout > 0){
-        timerManager_.addTimer(channel_,timeout);
-    }
+void EventLoop::updatePoller(std::shared_ptr<Channel> channel_, int timeout) {
+    poller_.epoll_mod(channel_, timeout);
 }
 
-void EventLoop::delChannel(std::shared_ptr<Channel> channel_, size_t timeout) {
-    poller_.delEvent(channel_);
-
-    if(timeout > 0){
-        timerManager_.addTimer(channel_, timeout);
-    }
+void EventLoop::delFromPoller(std::shared_ptr<Channel> channel_) {
+    poller_.epoll_del(channel_);
 }
 
 void EventLoop::loop() {
@@ -77,7 +64,7 @@ void EventLoop::loop() {
         doPendingFunctors();
 
         //超时处理
-        std::vector<std::shared_ptr<Channel>> expiredChannels = timerManager_.tick();
+        //std::vector<std::shared_ptr<Channel>> expiredChannels = timerManager_.tick();
     }
 }
 
