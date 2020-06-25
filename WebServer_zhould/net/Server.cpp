@@ -58,7 +58,7 @@ static int creatListenFd(int port){
     return listenFd;
 }
 
-static void hand_for_sigpipe(){
+static void handle_for_sigpipe(){
     struct sigaction sa;
     bzero(&sa, sizeof(sa));
     sa.sa_handler = SIG_IGN;
@@ -90,7 +90,7 @@ Server::Server(EventLoop* loop, size_t threadNum, int port)
       listenFd_(creatListenFd(port)),
       acceptChannel_(new Channel(loop_, listenFd_)){
     acceptChannel_->setFd(listenFd_);
-    hand_for_sigpipe();
+    handle_for_sigpipe();
     assert( setSocketNonBlocking(listenFd_) >= 0);
 }
 

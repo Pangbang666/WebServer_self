@@ -29,6 +29,7 @@ std::vector<std::shared_ptr<Channel>> Epoll::poll() {
                 int eventFd_ = events_[i].data.fd;
                 if(fd2Channel_.find(eventFd_) != fd2Channel_.end()) {
                     std::shared_ptr<Channel> connChannel = fd2Channel_[eventFd_];
+                    connChannel->setEvents(0);
                     connChannel->setReEvents(events_[i].events);
                     eventChannels_.push_back(connChannel);
                 }
@@ -43,9 +44,9 @@ void Epoll::epoll_add(std::shared_ptr<Channel> newChannel_, int timeout) {
     __uint32_t events_ = newChannel_->getEvents();
 
     if(timeout > 0){
+        addTimer(newChannel_, timeout);
         std::shared_ptr<HttpData> holder_ = newChannel_->getHolder();
         if(holder_) {
-            timerManager_.addTimer(newChannel_, timeout);
             fd2HttpData_[fd_] = holder_;
         }
     }
@@ -56,7 +57,6 @@ void Epoll::epoll_add(std::shared_ptr<Channel> newChannel_, int timeout) {
     event.events = events_;
     event.data.fd = fd_;
     epoll_ctl(epollFd_, EPOLL_CTL_ADD, fd_, &event);
-
 }
 
 void Epoll::epoll_del(std::shared_ptr<Channel> delChannel_) {
@@ -80,7 +80,7 @@ void Epoll::epoll_mod(std::shared_ptr<Channel> modChannel_, int timeout) {
     __uint32_t events_ = modChannel_->getEvents();
 
     if(timeout > 0){
-        timerManager_.addTimer(modChannel_, timeout);
+        addTimer(modChannel_, timeout);
     }
 
     assert(fd2Channel_.find(fd_) != fd2Channel_.end());
@@ -89,4 +89,15 @@ void Epoll::epoll_mod(std::shared_ptr<Channel> modChannel_, int timeout) {
     event.events = events_;
     event.data.fd = fd_;
     epoll_ctl(epollFd_, EPOLL_CTL_MOD, fd_, &event);
+}
+
+void Epoll::addTimer(std::shared_ptr<Channel> channel, int timeout) {
+    std::shared_ptr<HttpData> holder = channel->getHolder();
+    if(holder){
+        timerManager_.addTimer(holder, timeout);
+    }
+}
+
+void Epoll::handleExpired() {
+    timerManager_.handleExpired();
 }

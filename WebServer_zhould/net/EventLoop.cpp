@@ -64,7 +64,7 @@ void EventLoop::loop() {
         doPendingFunctors();
 
         //超时处理
-        //std::vector<std::shared_ptr<Channel>> expiredChannels = timerManager_.tick();
+        poller_.handleExpired();
     }
 }
 

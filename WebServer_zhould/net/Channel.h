@@ -29,6 +29,7 @@ public:
 
     void setWriteCallback(const CallbackFunc& writeCallback) { writeCallback_ = writeCallback;}
     void setReadCallback(const CallbackFunc& readCallback) { readCallback_ = readCallback;}
+    void setConnCallback(const CallbackFunc& connCallback) { connCallback_ = connCallback;}
 private:
     int fd_;
     EventLoop* loop_;
@@ -39,5 +40,7 @@ private:
 
     CallbackFunc readCallback_;
     CallbackFunc writeCallback_;
+    CallbackFunc errorCallback_;
+    CallbackFunc connCallback_;
 };
 

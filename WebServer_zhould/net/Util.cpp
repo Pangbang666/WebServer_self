@@ -93,8 +93,14 @@ ssize_t writen(int fd, std::string &sbuff) {
                 if (errno == EINTR) {
                     nwritten = 0;
                     continue;
-                } else if (errno == EAGAIN)
-                    break;
+                } else if (errno == EAGAIN){
+                    if( writeSum == sbuff.size())
+                        sbuff.clear();
+                    else
+                        sbuff=sbuff.substr(writeSum);
+
+                    return writeSum;
+                }
                 else
                     return -1;
             }

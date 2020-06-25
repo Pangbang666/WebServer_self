@@ -75,11 +75,14 @@ public:
     void reset();
 
     void newEvent();
+    void linkTimer(std::shared_ptr<TimerNode> timer);
+    void seperateTimer();
 
 public:
     void handleRead();
     void handleWrite();
     void handleConn();
+    void handleClose();
     void handleError(int fd, int err_num, std::string short_msg);
     URIState parseURI();
     HeaderState parseHeaders();

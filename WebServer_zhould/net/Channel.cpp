@@ -24,13 +24,32 @@ Channel::~Channel() {
 }
 
 void Channel::handleEvent() {
-    if(reEvents_ & EPOLLIN){
-        readCallback_();
-    }else if(reEvents_ & EPOLLOUT){
-        writeCallback_();
+    if((reEvents_ & EPOLLHUP) && (reEvents_ & EPOLLIN)){
+        events_ = 0;
+        return;
+    }
+
+    if(reEvents_ & EPOLLERR){
+        events_ = 0;
+        if(errorCallback_)
+            errorCallback_();
+        return;
+    }
+
+    if(reEvents_ & (EPOLLIN | EPOLLPRI | EPOLLRDHUP)){
+        if(readCallback_)
+            readCallback_();
+    }
+
+    if(reEvents_ & EPOLLOUT){
+        if(writeCallback_)
+            writeCallback_();
     }
 
     setReEvents(0);
+
+    if(connCallback_)
+        connCallback_();
 }
 
 std::shared_ptr<HttpData> Channel::getHolder() {
