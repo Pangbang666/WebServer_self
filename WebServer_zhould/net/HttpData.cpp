@@ -95,8 +95,8 @@ void MimeType::init() {
     mime[".doc"] = "application/msword";
     mime[".gif"] = "image/gif";
     mime[".gz"] = "application/x-gzip";
-    mime[".htm"] = "text/html";
     mime[".ico"] = "image/x-icon";
+    mime[".htm"] = "text/html";
     mime[".jpg"] = "image/jpeg";
     mime[".png"] = "image/png";
     mime[".txt"] = "text/plain";
@@ -169,7 +169,6 @@ void HttpData::handleRead() {
             // error_ = true;
             connectionState_ = H_DISCONNECTING;
             if (read_num == 0) {
-                // error_ = true;
                 break;
             }
         }
@@ -536,7 +535,7 @@ AnalysisState HttpData::analysisRequest(){
         if(fileName_.back() == '/')
             fileName_ += "index.html";
 
-        int dot_pos = fileName_.find('.');
+        int dot_pos = fileName_.find_last_of('.');
         std::string filetype;
         if (dot_pos < 0)
             filetype = MimeType::getMime("default");

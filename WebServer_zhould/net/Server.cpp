@@ -13,7 +13,6 @@
 #include <netinet/tcp.h>
 
 #define MAXLISTENNUN 1024
-#define DEFAULT_TIMEOUT 2048
 
 static int creatListenFd(int port){
     //端口取正确的范围
@@ -131,8 +130,6 @@ void Server::acceptFunc() {
         std::shared_ptr<HttpData> httpData_(new HttpData(selectLoop_, acceptFd_));
         httpData_->getChannel()->setHolder(httpData_);
         selectLoop_->queueInLoop(std::bind(&HttpData::newEvent, httpData_));
-
-        break;
     }
     acceptChannel_->setEvents(EPOLLIN | EPOLLET);
 }
