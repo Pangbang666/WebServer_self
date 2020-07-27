@@ -42,7 +42,7 @@ ssize_t readn(int fd, std::string& inBuffer, bool& zero){
         if((nread = read(fd, buf, MAX_BUF)) < 0){
             if(errno == EINTR)
                 continue;
-            else if(errno == EAGAIN)
+            else if(errno == EAGAIN)   //表示当前缓冲区已无数据可读
                 return readSum;
             else
                 return -1;
@@ -93,7 +93,7 @@ ssize_t writen(int fd, std::string &sbuff) {
                 if (errno == EINTR) {
                     nwritten = 0;
                     continue;
-                } else if (errno == EAGAIN){
+                } else if (errno == EAGAIN){    //表示写缓冲队列已满
                     if( writeSum == sbuff.size())
                         sbuff.clear();
                     else

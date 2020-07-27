@@ -302,7 +302,7 @@ void HttpData::handleError(int fd, int err_num, std::string short_msg) {
     header_buff += "Connection: Close\r\n";
     header_buff += "Content-Length: " + std::to_string(body_buff.size()) + "\r\n";
     header_buff += "Server: LinYa's Web Server\r\n";
-    ;
+
     header_buff += "\r\n";
     // 错误处理不考虑writen不完的情况
     sprintf(send_buff, "%s", header_buff.c_str());
